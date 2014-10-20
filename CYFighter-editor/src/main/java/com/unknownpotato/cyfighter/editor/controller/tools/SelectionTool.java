@@ -5,8 +5,12 @@
  */
 package com.unknownpotato.cyfighter.editor.controller.tools;
 
+import com.unknownpotato.cyfighter.editor.Observer;
 import com.unknownpotato.cyfighter.editor.controller.Editor;
 import com.unknownpotato.cyfighter.editor.model.Entity;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -16,9 +20,32 @@ public class SelectionTool implements Tool {
 
     private final Editor editor;
     private boolean selectMode;
+    private Observer observer;
+
+    private final List<Entity> selectedEntities;
 
     public SelectionTool(Editor editor) {
         this.editor = editor;
+        this.selectedEntities = new ArrayList();
+        this.observer = new Observer(){
+
+            public void refresh() {
+            }
+            
+        };
+    }
+
+    public void setObserver(Observer observer) {
+        this.observer = observer;
+    }
+
+    public List<Entity> getSelectedEntities() {
+        return selectedEntities;
+    }
+
+    public void delete() {
+        editor.getLevel().getEntities().removeAll(selectedEntities);
+        selectedEntities.clear();
     }
 
     public void mouseDown(int x, int y) {
@@ -28,7 +55,7 @@ public class SelectionTool implements Tool {
         editor.getCurSelect().y = y;
 
         // Onko kohdalla joku valittu entity?
-        for (Entity e : editor.getSelectedEntities()) {
+        for (Entity e : selectedEntities) {
             if (Math.abs(e.getPos().x - x) < 30) {
                 if (Math.abs(e.getPos().y - y) < 30) {
                     selectMode = false;
@@ -38,15 +65,16 @@ public class SelectionTool implements Tool {
         }
 
         //Poista valinnat
-        editor.getSelectedEntities().clear();
+        selectedEntities.clear();
 
         //Onko kohdalla jokin muu entity?
         for (Entity e : editor.getLevel().getEntities()) {
             if (Math.abs(e.getPos().x - x) < 30) {
                 if (Math.abs(e.getPos().y - y) < 30) {
                     //Valitse se (huom. vain ensimmäinen löydetty)
-                    editor.getSelectedEntities().add(e);
+                    selectedEntities.add(e);
                     selectMode = false;
+                    this.observer.refresh();
                     return;
                 }
             }
@@ -55,6 +83,7 @@ public class SelectionTool implements Tool {
         //ei tehdä mitään, jatkossa siis valitaan entityjä joten select = true
         selectMode = true;
 
+        this.observer.refresh();
     }
 
     public void mouseMoved(int x, int y) {
@@ -69,10 +98,11 @@ public class SelectionTool implements Tool {
         } else {
             moveEntities();
         }
+        this.observer.refresh();
     }
 
     private void selectEntities() {
-        editor.getSelectedEntities().clear();
+        selectedEntities.clear();
         for (Entity e : editor.getLevel().getEntities()) {
             if ((e.getPos().x > editor.getBeginSelect().x && e.getPos().x < editor.getCurSelect().x)
                     || (e.getPos().x > editor.getCurSelect().x && e.getPos().x < editor.getBeginSelect().x)) {
@@ -80,8 +110,8 @@ public class SelectionTool implements Tool {
                 if ((e.getPos().y > editor.getBeginSelect().y && e.getPos().y < editor.getCurSelect().y)
                         || (e.getPos().y > editor.getCurSelect().y && e.getPos().y < editor.getBeginSelect().y)) {
 
-                    if (!editor.getSelectedEntities().contains(e)) {
-                        editor.getSelectedEntities().add(e);
+                    if (!selectedEntities.contains(e)) {
+                        selectedEntities.add(e);
                     }
                 }
             }
@@ -89,7 +119,7 @@ public class SelectionTool implements Tool {
     }
 
     private void moveEntities() {
-        for (Entity e : editor.getSelectedEntities()) {
+        for (Entity e : selectedEntities) {
             e.getPos().x = e.getPos().x + (editor.getCurSelect().x - editor.getBeginSelect().x);
             e.getPos().y = e.getPos().y + (editor.getCurSelect().y - editor.getBeginSelect().y);
         }
@@ -99,6 +129,15 @@ public class SelectionTool implements Tool {
 
     public void mouseUp() {
 
+    }
+    
+    public void changeTypeOfSelectedEntities(String type) {
+        if (type == null || type.isEmpty()) {
+            return;
+        }
+        for (Entity e : selectedEntities) {
+            e.setType(type);
+        }
     }
 
     public boolean isSelectionMode() {

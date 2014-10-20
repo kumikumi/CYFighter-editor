@@ -11,5 +11,5 @@ package com.unknownpotato.cyfighter.editor;
  * @author mikko
  */
 public interface Observer {
-    public void update();
+    public void refresh();
 }

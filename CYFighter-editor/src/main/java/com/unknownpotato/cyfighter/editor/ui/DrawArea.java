@@ -71,8 +71,8 @@ public class DrawArea extends JPanel {
     
     private void drawEntitySelections(Graphics g) {
         g.setColor(Color.YELLOW);
-        for (Entity e : editor.getSelectedEntities()) {
-            g.drawRect((int)(e.getPos().x), (int)(e.getPos().y), 30, 30);
+        for (Entity e : selectionTool.getSelectedEntities()) {
+            g.drawRect((int)(e.getPos().x)-(Entity.WIDTH/2), (int)(e.getPos().y)-(Entity.WIDTH/2), Entity.WIDTH, Entity.WIDTH);
         }
     }
 
@@ -95,7 +95,10 @@ public class DrawArea extends JPanel {
     private void drawEntities(Graphics g) {
         Collection<Entity> entities = level.getEntities();
         for (Entity e : entities) {
-            g.drawImage(rockImage, (int)(e.getPos().x), (int)e.getPos().y, null);
+            g.setColor(Color.CYAN);
+            g.fill3DRect((int)(e.getPos().x)-(Entity.WIDTH/2), (int)e.getPos().y-(Entity.WIDTH/2), Entity.WIDTH, Entity.WIDTH, true);
+            g.setColor(Color.black);
+            g.drawString(e.getType(), (int)(e.getPos().x)-(Entity.WIDTH/2), (int)(e.getPos().y)-(Entity.WIDTH/2)+10);
         }
     }
 

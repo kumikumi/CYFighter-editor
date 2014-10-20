@@ -14,7 +14,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -30,7 +33,6 @@ public class Editor {
     private final MapLoader maploader;
     private final MapSaver mapsaver;
     private Observer observer;
-    private Map<String, EntityType> entityTypes;
     private Level level;
     private File currentFile;
     private boolean mouseDown;
@@ -40,8 +42,10 @@ public class Editor {
     private ToolType currentTool = ToolType.SELECT;
     private final Vector2 beginSelect;
     private final Vector2 curSelect;
+    
+    private Set<String> entityTypes;
 
-    private final Collection<Entity> selectedEntities;
+    
 
     public Editor(Observer observer) {
         this.observer = observer;
@@ -49,11 +53,19 @@ public class Editor {
         this.mapsaver = new MapSaver();
         this.beginSelect = new Vector2(0, 0);
         this.curSelect = new Vector2(0, 0);
-
-        this.selectedEntities = new ArrayList();
-        this.tools = new EnumMap<ToolType, Tool>(ToolType.class);
+        this.entityTypes = new HashSet<>();
+        
+        this.tools = new EnumMap<>(ToolType.class);
         tools.put(ToolType.CREATE, new CreationTool(this));
         tools.put(ToolType.SELECT, new SelectionTool(this));
+    }
+    
+    public Collection<String> getEntityTypes() {
+        entityTypes = new HashSet<>();
+        for (Entity e : level.getEntities()) {
+            entityTypes.add(e.getType());
+        }
+        return entityTypes;
     }
 
     public File getCurrentFile() {
@@ -62,6 +74,10 @@ public class Editor {
 
     public Level getLevel() {
         return level;
+    }
+
+    public Map<ToolType, Tool> getTools() {
+        return tools;
     }
 
 //    public void newLevel() {
@@ -90,7 +106,7 @@ public class Editor {
     public void close() {
         this.level = null;
         this.currentFile = null;
-        this.observer.update();
+        this.observer.refresh();
     }
 
     public void mouseDown(int x, int y) {
@@ -99,20 +115,9 @@ public class Editor {
         }
         this.mouseDown = true;
         this.tools.get(currentTool).mouseDown(x, y);
-        this.observer.update();
+        this.observer.refresh();
     }
 
-//    private void select(int x, int y) {
-//        for (Entity e : level.getEntities()) {
-//            if (Math.abs(e.getPos().x - x) < 30) {
-//                if (Math.abs(e.getPos().y-y) < 30) {
-//                    if (!selectedEntities.contains(e)) {
-//                        selectedEntities.add(e);
-//                    }
-//                }
-//            }
-//        }
-//    }
     public double getZoom() {
         return 1.0;
     }
@@ -127,7 +132,7 @@ public class Editor {
         }
         this.mouseDown = false;
         tools.get(currentTool).mouseUp();
-        this.observer.update();
+        this.observer.refresh();
     }
 
     public void mouseMoved(int x, int y) {
@@ -135,7 +140,7 @@ public class Editor {
             return;
         }
         tools.get(currentTool).mouseMoved(x, y);
-        this.observer.update();
+        this.observer.refresh();
     }
 
     public Vector2 getBeginSelect() {
@@ -157,13 +162,11 @@ public class Editor {
     public ToolType getCurrentTool() {
         return currentTool;
     }
-
-    public Collection<Entity> getSelectedEntities() {
-        return selectedEntities;
-    }
     
     public SelectionTool getSelectionTool() {
         return (SelectionTool) this.tools.get(ToolType.SELECT);
     }
+
+
 
 }

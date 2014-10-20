@@ -1,6 +1,8 @@
 package com.unknownpotato.cyfighter.editor.model;
 
 public class Entity {
+    
+    public static final int WIDTH = 60;
 
     private float rot;
 

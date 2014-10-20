@@ -14,7 +14,7 @@ public class App {
         //Luodaan uusi Editor, annetaan se Window:lle, laitetaan window näkyväksi
         
         final Editor editor = new Editor(new Observer() {
-            public void update() {
+            public void refresh() {
             }
         });
 

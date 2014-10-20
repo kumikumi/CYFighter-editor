@@ -8,8 +8,12 @@ package com.unknownpotato.cyfighter.editor.ui;
 import com.unknownpotato.cyfighter.editor.Observer;
 import com.unknownpotato.cyfighter.editor.controller.Editor;
 import com.unknownpotato.cyfighter.editor.controller.ToolType;
+import com.unknownpotato.cyfighter.editor.controller.tools.CreationTool;
+import com.unknownpotato.cyfighter.editor.controller.tools.SelectionTool;
+import java.awt.FlowLayout;
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
 
@@ -21,13 +25,19 @@ public class Window extends javax.swing.JFrame implements Observer {
 
     private Editor editor;
     private MouseListenerImpl mouseListener;
+    private CreationToolPanel createPanel;
+    private SelectionToolPanel selectPanel;
 
     public Window(Editor editor) {
         this.editor = editor;
         this.editor.setObserver(this);
         this.drawArea1 = new DrawArea(editor);
         this.mouseListener = new MouseListenerImpl(editor);
+        this.createPanel = new CreationToolPanel((CreationTool)editor.getTools().get(ToolType.CREATE));
+        this.selectPanel = new SelectionToolPanel(this, (SelectionTool)editor.getTools().get(ToolType.SELECT));
+        
         initComponents();
+        sidePanel.setLayout(new FlowLayout());
         drawArea1.addMouseListener(mouseListener);
         drawArea1.addMouseMotionListener(mouseListener);
         this.updateUI();
@@ -45,19 +55,38 @@ public class Window extends javax.swing.JFrame implements Observer {
         jScrollPane1.setViewportView(drawArea1);
         updateMenuBar();
         updateToolBar();
+        //updateSidePanel();
+        //selectPanel.update();
     }
-    
+
     private void updateMenuBar() {
         saveProjectMenuItem.setEnabled(editor.getCurrentFile() != null);
         saveAsMenuItem.setEnabled(editor.getLevel() != null);
         closeProjectMenuItem.setEnabled(editor.getLevel() != null);
     }
-    
+
     private void updateToolBar() {
         selectButton.setSelected(editor.getCurrentTool() == ToolType.SELECT);
         createButton.setSelected(editor.getCurrentTool() == ToolType.CREATE);
     }
-    
+
+    private void updateSidePanel() {
+        sidePanel.removeAll();
+        if (editor.getLevel() == null) {
+            return;
+        }
+        switch (editor.getCurrentTool()) {
+            case SELECT:
+                sidePanel.add(selectPanel);
+                break;
+            case CREATE:
+                sidePanel.add(createPanel);
+                createPanel.refresh();
+                break;
+        }
+        sidePanel.revalidate();
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -75,7 +104,7 @@ public class Window extends javax.swing.JFrame implements Observer {
         createButton = new javax.swing.JToggleButton();
         jToggleButton3 = new javax.swing.JToggleButton();
         jToggleButton4 = new javax.swing.JToggleButton();
-        jPanel1 = new javax.swing.JPanel();
+        sidePanel = new javax.swing.JPanel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         newProjectMenuItem = new javax.swing.JMenuItem();
@@ -94,7 +123,7 @@ public class Window extends javax.swing.JFrame implements Observer {
         drawArea1.setLayout(drawArea1Layout);
         drawArea1Layout.setHorizontalGroup(
             drawArea1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 588, Short.MAX_VALUE)
+            .addGap(0, 635, Short.MAX_VALUE)
         );
         drawArea1Layout.setVerticalGroup(
             drawArea1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -140,15 +169,15 @@ public class Window extends javax.swing.JFrame implements Observer {
         jToggleButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jToggleButton4);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 234, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout sidePanelLayout = new javax.swing.GroupLayout(sidePanel);
+        sidePanel.setLayout(sidePanelLayout);
+        sidePanelLayout.setHorizontalGroup(
+            sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
+        );
+        sidePanelLayout.setVerticalGroup(
+            sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 433, Short.MAX_VALUE)
         );
 
         jMenu1.setText("File");
@@ -202,9 +231,9 @@ public class Window extends javax.swing.JFrame implements Observer {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 843, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 638, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(sidePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -214,7 +243,7 @@ public class Window extends javax.swing.JFrame implements Observer {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(sidePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         pack();
@@ -229,7 +258,7 @@ public class Window extends javax.swing.JFrame implements Observer {
 
             @Override
             public boolean accept(File f) {
-                
+
                 return true;
             }
 
@@ -283,48 +312,50 @@ public class Window extends javax.swing.JFrame implements Observer {
     private void selectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectButtonActionPerformed
         // TODO add your handling code here:
         editor.setCurrentTool(ToolType.SELECT);
+        this.updateSidePanel();
         this.updateUI();
     }//GEN-LAST:event_selectButtonActionPerformed
 
     private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
         editor.setCurrentTool(ToolType.CREATE);
+        this.updateSidePanel();
         this.updateUI();
     }//GEN-LAST:event_createButtonActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Window().setVisible(true);
-            }
-        });
-    }
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(Window.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new Window().setVisible(true);
+//            }
+//        });
+//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem closeProjectMenuItem;
@@ -334,7 +365,6 @@ public class Window extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToggleButton jToggleButton3;
     private javax.swing.JToggleButton jToggleButton4;
@@ -344,9 +374,10 @@ public class Window extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveProjectMenuItem;
     private javax.swing.JToggleButton selectButton;
+    private javax.swing.JPanel sidePanel;
     // End of variables declaration//GEN-END:variables
 
-    public void update() {
+    public void refresh() {
         this.updateUI();
     }
 }
