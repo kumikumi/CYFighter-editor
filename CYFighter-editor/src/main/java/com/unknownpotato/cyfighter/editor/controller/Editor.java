@@ -3,6 +3,7 @@ package com.unknownpotato.cyfighter.editor.controller;
 import com.unknownpotato.cyfighter.editor.Observer;
 import com.unknownpotato.cyfighter.editor.controller.tools.CreationTool;
 import com.unknownpotato.cyfighter.editor.controller.tools.SelectionTool;
+import com.unknownpotato.cyfighter.editor.controller.tools.StackTool;
 import com.unknownpotato.cyfighter.editor.controller.tools.Tool;
 import com.unknownpotato.cyfighter.editor.fileio.MapLoader;
 import com.unknownpotato.cyfighter.editor.fileio.MapSaver;
@@ -44,6 +45,8 @@ public class Editor {
     private final Vector2 curSelect;
     
     private Set<String> entityTypes;
+    
+    private StackTool stackTool;
 
     
 
@@ -58,6 +61,12 @@ public class Editor {
         this.tools = new EnumMap<>(ToolType.class);
         tools.put(ToolType.CREATE, new CreationTool(this));
         tools.put(ToolType.SELECT, new SelectionTool(this));
+        
+        this.stackTool = new StackTool(this);
+    }
+
+    public StackTool getStackTool() {
+        return stackTool;
     }
     
     public Collection<String> getEntityTypes() {

@@ -113,6 +113,7 @@ public class Window extends javax.swing.JFrame implements Observer {
         saveAsMenuItem = new javax.swing.JMenuItem();
         closeProjectMenuItem = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        stackMenuItem = new javax.swing.JMenuItem();
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
@@ -224,6 +225,15 @@ public class Window extends javax.swing.JFrame implements Observer {
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Edit");
+
+        stackMenuItem.setText("Stack");
+        stackMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stackMenuItemActionPerformed(evt);
+            }
+        });
+        jMenu2.add(stackMenuItem);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -325,6 +335,11 @@ public class Window extends javax.swing.JFrame implements Observer {
         this.updateUI();
     }//GEN-LAST:event_createButtonActionPerformed
 
+    private void stackMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stackMenuItemActionPerformed
+        // TODO add your handling code here:
+        new StackToolFrame(editor.getStackTool()).setVisible(true);
+    }//GEN-LAST:event_stackMenuItemActionPerformed
+
 //    /**
 //     * @param args the command line arguments
 //     */
@@ -378,6 +393,7 @@ public class Window extends javax.swing.JFrame implements Observer {
     private javax.swing.JMenuItem saveProjectMenuItem;
     private javax.swing.JToggleButton selectButton;
     private javax.swing.JPanel sidePanel;
+    private javax.swing.JMenuItem stackMenuItem;
     // End of variables declaration//GEN-END:variables
 
     public void refresh() {
